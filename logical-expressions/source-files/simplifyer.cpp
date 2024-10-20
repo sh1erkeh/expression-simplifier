@@ -1,53 +1,30 @@
 #include "../header-files/simplifyer.h"
 
-// class Simplifyer {
-// public:
-//     void init(std::string &expression) {
-//         parser.init(expression);
-//         number_of_variables = parser.variables.size();
-//     }
+#include <algorithm>
 
-//     void simplify() {
-//         std::vector<unit> maxterms = find_maxterms();
-//     }
-// private:
-//     struct unit {
-//         int counter;
-//         std::vector<char> value;
-//     };
-//     ExpressionParser parser;
+Simplifier::Simplifier(int number_of_variables, std::vector<maxterm> &maxterms) {
+    this->number_of_variables = number_of_variables;
+    std::copy(maxterms.begin(), maxterms.end(), std::back_inserter(this->maxterms));
+    std::sort(this->maxterms.begin(), this->maxterms.end());
+}
 
-//     size_t number_of_variables;
-//     std::set<std::vector<char>> ans;
+Simplifier::Simplifier() : Simplifier({}) {}
 
-//     std::vector<unit> find_maxterms() {
-//         std::vector<unit> maxterms;
-//         for (int value = 0; value < (1 << number_of_variables); value++) {
-//             if (parser.calculate(value)) {
-//                 int counter = 0;
-//                 std::vector<char> maxterm(number_of_variables);
+int maxterm::count_ones() {
+    int counter = 0;
+    for (size_t i = 0; i < value.size(); i++) {
+        if (value[i] == Bit::True) {
+            counter++;
+        }
+    }
+    return counter;
+}
 
-//                 for (size_t i = 0; i < number_of_variables; i++) {
-//                     if (((value >> i) & 1)) {
-//                         maxterm[i] = 1;
-//                         counter++;
-//                     } else {
-//                         maxterm[i] = 0;
-//                     }
-//                 }
-//                 maxterms.push_back({counter, maxterm});
-//             }
-//         }
-//         sort(maxterms.begin(), maxterms.end(), comparator);
-//         return maxterms;
-//     }
+bool maxterm::operator<(maxterm &other) {
+    return this->count_ones() < other.count_ones();
+}
 
-//     bool comparator(unit &first, unit &second) {
-//         return first.counter < second.counter;
-//     }
+std::vector<maxterm> Simplifier::simplify(int number_of_variables, std::vector<maxterm> &maxterms) {
+    *this = Simplifier(number_of_variables, maxterms);
 
-//     bool minimize() {
-
-//     }
-// };  
-
+}

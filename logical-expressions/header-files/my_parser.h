@@ -18,10 +18,14 @@ enum class Operation: char {
 
 class ExpressionParser {
 public:
+    ExpressionParser();
     ExpressionParser(std::string infix_expr);
 
-    bool calculate(int values);
-    void print_postfix();
+    ExpressionParser(const ExpressionParser&) = delete;
+    // ExpressionParser& operator=(const ExpressionParser&) = delete;
+    
+    void load_expr(std::string infix_expr);
+    std::vector<int> find_maxterms();
 private:
     static std::map<Operation, int> operation_priority;
 
@@ -32,8 +36,9 @@ private:
     std::set<char> variables;
     std::vector<char> infix_expr, postfix_expr;
 
-    void convert_to_postfix();
-    bool determine_value(int values, char variable);
+    bool calculate_expr_value(int values);
+    void convert_expr_to_postfix();
+    bool determine_variable_value(int values, char variable);
 };
 
 #endif

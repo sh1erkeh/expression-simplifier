@@ -1,4 +1,4 @@
-#include "../header-files/parser.h"
+#include "../header-files/my_parser.h"
 #include <stack>
 #include <algorithm>
 #include <iostream>
@@ -10,15 +10,21 @@ ExpressionParser::ExpressionParser(std::string infix_expr) {
         this->infix_expr.push_back(c);
     }
     delete_spaces(this->infix_expr);
-    convert_to_postfix();
+    convert_expr_to_postfix();
 }
 
-bool ExpressionParser::calculate(int values) {
+ExpressionParser::ExpressionParser() : ExpressionParser("") {}
+
+void ExpressionParser::load_expr(std::string infix_expr) {
+    *this = ExpressionParser(infix_expr);
+}
+
+bool ExpressionParser::calculate_expr_value(int values) {
     std::stack<bool> locals;
 
     for (char c : postfix_expr) {
         if (is_variable(c)) {
-            locals.push(determine_value(values, c));
+            locals.push(determine_variable_value(values, c));
         } else {
             Operation op = static_cast<Operation>(c);
             
@@ -43,13 +49,6 @@ bool ExpressionParser::calculate(int values) {
     }
 
     return locals.top();
-}
-
-void ExpressionParser::print_postfix() {
-    for (char c : postfix_expr) {
-        std::cout << c << ' ';
-    }
-    std::cout << std::endl;
 }
 
 std::map<Operation, int> ExpressionParser::operation_priority { 
@@ -90,7 +89,7 @@ bool ExpressionParser::execute_operation(Operation op, char value1, char value2)
 }
 
 
-void ExpressionParser::convert_to_postfix() {
+void ExpressionParser::convert_expr_to_postfix() {
     std::stack<Operation> operations;
 
     for (char c : infix_expr) {
@@ -127,14 +126,23 @@ void ExpressionParser::convert_to_postfix() {
     }
 }
 
-bool ExpressionParser::determine_value(int values, char variable) {
+bool ExpressionParser::determine_variable_value(int values, char variable) {
     int index = distance(variables.begin(), variables.lower_bound(variable));
     return (values >> index) & 1;
+}
+
+std::vector<int> ExpressionParser::find_maxterms() {
+    std::vector<int> maxterms;
+    for (int values = 0; values < (1 << variables.size()); values++) {
+        if (calculate_expr_value(values)) {
+            maxterms.push_back(values);
+        }
+    }
+    return maxterms;
 }
 
 int main() {
     std::string s = "a*b*c + a*!b*!c + b";
     ExpressionParser parser1{s};
-    parser1.print_postfix();
     return 0;
 }
